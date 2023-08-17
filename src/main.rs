@@ -1,4 +1,4 @@
-use rust_email_newsletter::run;
+use rust_email_newsletter::startup::run;
 use std::net::TcpListener;
 
 #[tokio::main]
