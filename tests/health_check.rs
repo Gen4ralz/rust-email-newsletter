@@ -1,6 +1,9 @@
+use rust_email_newsletter::{
+    configuration::{get_configuration, DatabaseSettings},
+    startup::run,
+};
+use sqlx::{Connection, Executor, PgConnection, PgPool};
 use std::{net::TcpListener, vec};
-use rust_email_newsletter::{startup::run, configuration::{get_configuration, DatabaseSettings}};
-use sqlx::{PgPool, PgConnection, Connection, Executor};
 use uuid::Uuid;
 
 pub struct TestApp {
@@ -9,8 +12,7 @@ pub struct TestApp {
 }
 
 async fn spawn_app() -> TestApp {
-    let listener = TcpListener::bind("127.0.0.1:0")
-        .expect("Failed to bind random port");
+    let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind random port");
 
     let port = listener.local_addr().unwrap().port();
     let address = format!("http://127.0.0.1:{}", port);
@@ -31,12 +33,9 @@ async fn spawn_app() -> TestApp {
 }
 
 pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
-
-    let mut connection = PgConnection::connect(
-        &config.connection_string_without_db()
-    )
-    .await
-    .expect("Failed to connect to Postgres");
+    let mut connection = PgConnection::connect(&config.connection_string_without_db())
+        .await
+        .expect("Failed to connect to Postgres");
 
     connection
         .execute(format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str())
@@ -103,7 +102,7 @@ async fn subscribe_returns_400() {
     let test_cases = vec![
         ("name=nattapong%20panyaa", "missing the email"),
         ("email=admin%40example.com", "missing the name"),
-        ("", "missing both name and email")
+        ("", "missing both name and email"),
     ];
 
     for (invalid_body, error_message) in test_cases {
